@@ -1,16 +1,19 @@
 package com.belanov.buysell.models;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "products")
-@Getter
-@Setter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {
@@ -28,17 +31,20 @@ public class Product {
     private String city;
     @Column(name = "author")
     private String author;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Product product = (Product) o;
-        return id != null && Objects.equals(id, product.id);
+    @Column(name = "previewImageId")
+    private Long previewImageId;
+    @Column(name = "dateOfCreated")
+    private LocalDateTime dateOfCreated;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product")
+    private List<Image> images =new ArrayList<>();
+    @PrePersist
+    private void init(){
+        dateOfCreated = LocalDateTime.now();
+    }
+    public void addImageToProduct(Image image){
+        image.setProduct(this);
+        images.add(image);
     }
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
+
 }
